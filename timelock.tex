@@ -129,7 +129,7 @@ In a time-lock puzzle, ``efficient'' decryption (in a certain sense) is neither 
 
 %% \begin{assumption}[Computational modular inverse assumption]
 %%   TODO: should p be random in this assumption?
-%%   For any $\NC$ algorithm $A$ and for all $k$-bit primes $p$, the probability over randomly chosen $a$ and $b$ in $\Zp$ that $A(ab, b) \cong a \pmod{p}$ is negligible in $k$.
+%%   For any $\NC$ algorithm $A$ and for all $k$-bit primes $p$, the probability over randomly chosen $a$ and $b$ in $\Zp$ that $A(ab, b) \equiv a \pmod{p}$ is negligible in $k$.
 %% \end{assumption}
 
 %% \begin{assumption}[Decisional modular inverse assumption]
@@ -172,7 +172,7 @@ In a time-lock puzzle, ``efficient'' decryption (in a certain sense) is neither 
 \end{conjecture}
 
 \begin{assumption}[Modular square root assumption]
-  For any $\NC$ algorithm $A$ and for all $k$-bit primes $p$, the probability over randomly chosen $a$ in $\Zp$ that $A(a^2) \cong \pm a \pmod{p}$ is negligible in $k$.
+  For any $\NC$ algorithm $A$ and for all $k$-bit primes $p$, the probability over randomly chosen $a$ in $\Zp$ that $A(a^2) \equiv \pm a \pmod{p}$ is negligible in $k$.
 \end{assumption}
 
 \begin{conjecture}
