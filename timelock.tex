@@ -1,0 +1,241 @@
+%% timelock.tex - Algebraic time-lock puzzles
+%%
+%% Copyright 2014 Jeffrey Finkelstein.
+%%
+%% This LaTeX markup document is made available under the terms of the Creative
+%% Commons Attribution-ShareAlike 4.0 International License,
+%% https://creativecommons.org/licenses/by-sa/4.0/.
+\documentclass{article}
+
+%% This must come before hyperref.
+\usepackage{amsthm}
+%% This must come before hyperref.
+\usepackage{thmtools}
+%% This must come before complexity.
+\usepackage{hyperref}
+%% This is strongly recommended by biblatex.
+\usepackage[english]{babel}
+%% This is strongly recommended by biblatex.
+\usepackage{csquotes}
+\usepackage[backend=biber]{biblatex}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{complexity}
+
+\hypersetup{pdftitle={Algebraic time-lock puzzles}, pdfauthor={Jeffrey Finkelstein}}
+
+%\addbibresource{references.bib}
+
+\declaretheorem[]{theorem}
+\declaretheorem[numberlike=theorem]{proposition}
+\declaretheorem[numberlike=theorem]{conjecture}
+\declaretheorem[numberlike=theorem]{assumption}
+\declaretheorem[numberlike=theorem, style=definition]{definition}
+\declaretheorem[numberlike=theorem, style=definition]{protocol}
+
+%% \newcommand{\getr}{\overset{R}{\gets}}
+\newcommand{\Enc}{\operatorname{Enc}}
+\newcommand{\Dec}{\operatorname{Dec}}
+\newcommand{\Zp}{\mathbb{Z}^*_p}
+
+\title{Algebraic time-lock puzzles}
+\author{Jeffrey Finkelstein}
+
+\begin{document}
+
+\maketitle
+
+%% An \emph{$\NP$ relation} is a set of the form $\{ (x, w) \, | \, (x, w) \in L \}$, where $L \in \P$.
+%% An \emph{$\NP$ search function} for an $\NP$ relation $R$ is a function $f$ such that for all $x$, $f(x) = w$ where $(x, w) \in R$ (or if no $w$ exists for a given $x$, then $f(x) = \bot$).
+
+%% A \emph{time-lock puzzle} is a pair $(A, B)$ of Turing machines satisfying the following conditions.
+%% \begin{itemize}
+%% \item \emph{(efficiency)}
+%%   %%  For all inputs $m$, $A(m)$ outputs $c$ in polynomial time.
+%%   %%  For all inputs $m$ and all $c$ such that $A(m) = c$, $B(c) = m$
+%% \item \emph{(completeness)}
+%%   There is a $B$ such that for all $m$, $B(A(m)) = m$.
+%% \item \emph{(soundness)}
+%%   For all $B$,
+%% \end{itemize}
+
+\emph{See also: timed-release encryption, timed commitment schemes}
+
+A time-lock puzzle is merely an encryption scheme that has no secret key.
+The secret key in an encryption scheme is intended to allow efficient decryption only for the holder of the key.
+In a time-lock puzzle, ``efficient'' decryption (in a certain sense) is neither desired nor necessary; any decryption should be ``inefficient'' (that is, should require a large amount of resources).
+
+\begin{definition}
+  Suppose $M$ is a finite set of messages.
+  A pair of functions $(\Enc, \Dec)$ is a \emph{time-lock puzzle} if $m = \Dec(\Enc(m))$ for all $m \in M$.
+\end{definition}
+
+\begin{definition}
+  TODO: this is an informal definition of indistinguishability.
+  Use the formal definitions from Goldreich, Volume II.
+
+  A time-lock puzzle $(\Enc, \Dec)$ is \emph{secure} if no $\NC$ adversary can distinguish $\Enc(m_1)$ from $\Enc(m_2)$ for any $m_1$ and $m_2$ in $M$ with non-negligible probability.
+\end{definition}
+
+\section{Algebraic time-lock puzzles}
+
+\subsection{Greatest common divisor}
+
+\begin{assumption}[Computational GCD assumption]
+  For any $\NC$ algorithm $A$, the probability over randomly chosen $k$-bit integers $a$ and $b$ that $A(a, b) = \gcd(a, b)$ is negligible in $k$.
+\end{assumption}
+
+\begin{assumption}[Decisional GCD assumption]
+  TODO: this is an informal definitions of indistinguishability.
+
+  Let $k$ be the security parameter and $K = 2^k$.
+  The following two probability distributions are $\NC$ indistinguishable.
+  \begin{itemize}
+  \item $(a, b, d)$, where $a$ and $b$ are chosen uniformly at random from $\{1, \dotsc, K\}$ and $d = \gcd(a, b)$
+  \item $(a, b, r)$, where $a$, $b$, and $r$ are chosen uniformly at random from $\{1, \dotsc, K\}$
+  \end{itemize}
+\end{assumption}
+
+\begin{proposition}
+  If the decisional GCD assumption is true, then the computational GCD assumption is true.
+\end{proposition}
+\begin{proof}
+  Assume with the intention of producing a contradiction that the computational GCD assumption is false, so there is an $\NC$ algorithm $A(a, b)$ that computes $\gcd(a, b)$ with non-negligible probability (say probability at least $\frac{1}{p(k)}$ for some polynomial $p$ in the security parameter $k$).
+  We construct an $\NC$ algorithm $A'$ to distinguish $(a, b, d)$ from $(a, b, r)$ as follows.
+  On input $(a, b, z)$, the algorithm runs $A(a, b)$, which outputs an integer $d$.
+  Now $A'$ accepts if and only if $z = d$.
+
+  $A'$ is an $\NC$ algorithm since it performs only the computation of $A$, which is itself an $\NC$ algorithm, along with a single comparison of the outputs of $A(a, b)$ with the string $z$.
+  The probability that $A'$ accepts $(a, b, d)$ is at least $\frac{1}{p(k)}$.
+  The probability that $A'$ accepts $(a, b, z)$, where $z$ is a random string, is the probability that $z = \gcd(a, b)$, which is exactly $\frac{1}{2^k}$.
+  The value $\left|\frac{1}{p(k)} - \frac{1}{2^k}\right|$ is non-negligible, and hence $A'$ violates the decisional GCD assumption.
+\end{proof}
+
+\begin{protocol}[GCD time-lock puzzle]
+  Define time-lock puzzle $(\Enc, \Dec)$ as follows.
+
+  \emph{Encryption:} On input message $m \in \Sigma^k$, output $(mx, my)$, where $x$ and $y$ are coprime integers chosen uniformly at random from $\Sigma^k$. (The products $mx$ and $my$ are elements of $\Sigma^{2k}$.)
+
+  \emph{Decryption:} On input ciphertext $(a, b)$, output $\gcd(a, b)$.
+\end{protocol}
+
+\begin{conjecture}
+  If the decisional GCD assumption is true, then the GCD time-lock puzzle is secure.
+\end{conjecture}
+
+\subsection{Modular inverse}
+
+%% \begin{assumption}[Computational modular inverse assumption]
+%%   TODO: should p be random in this assumption?
+%%   For any $\NC$ algorithm $A$ and for all $k$-bit primes $p$, the probability over randomly chosen $a$ and $b$ in $\Zp$ that $A(ab, b) \cong a \pmod{p}$ is negligible in $k$.
+%% \end{assumption}
+
+%% \begin{assumption}[Decisional modular inverse assumption]
+%%   TODO: this is an informal definitions of indistinguishability.
+
+%%   Let $k$ be the security parameter and $p$ be a $k$-bit prime.
+%%   The following two probability distributions are $\NC$ indistinguishable.
+%%   \begin{itemize}
+%%   \item $(ab, b, a)$, where $a$ and $b$ are chosen uniformly at random from $\Zp$.
+%%   \item $(ab, b, r)$, where $a$, $b$, and $r$ are chosen uniformly at random from $\Zp$.
+%%   \end{itemize}
+%% \end{assumption}
+
+%% \begin{proposition}
+%%   If the decisional modular inverse assumption is true, then the computational modular inverse assumption is true.
+%% \end{proposition}
+%% \begin{proof}
+%%   Assume with the intention of producing a contradiction that the computational modular inverse assumption is false, so there is an $\NC$ algorithm $A(ab, b)$ that computes $a$ with non-negligible probability (say probability at least $\frac{1}{p(k)}$ for some polynomial $p$ in the security parameter $k$).
+%%   We construct an $\NC$ algorithm $A'$ to distinguish $(ab, b, a)$ from $(ab, b, r)$ as follows.
+%%   On input $(ab, b, z)$, the algorithm runs $A(ab, b)$, which outputs an integer $x$.
+%%   Now $A'$ accepts if and only if $x = z$.
+
+%%   $A'$ is an $\NC$ algorithm since it performs only the computation of $A$, which is itself an $\NC$ algorithm, along with a single comparison of the outputs of $A(ab, b)$ with the string $z$.
+%%   The probability that $A'$ accepts $(ab, b, a)$ is at least $\frac{1}{p(k)}$.
+%%   The probability that $A'$ accepts $(ab, b, z)$, where $z$ is a random string, is the probability that $z = a$, which is exactly $\frac{1}{2^k}$.
+%%   The value $\left|\frac{1}{p(k)} - \frac{1}{2^k}\right|$ is non-negligible, and hence $A'$ violates the decisional modular inverse assumption.
+%% \end{proof}
+
+\begin{protocol}[Modular inverse time-lock puzzle]
+  Let $p$ be a $k$-bit prime.
+  Define time-lock puzzle $(\Enc, \Dec)$ as follows.
+
+  \emph{Encryption:} On input message $m \in \Zp$, output $(mx, x)$, where $x$ is chosen uniformly at random from $\Zp$.
+
+  \emph{Decryption:} On input ciphertext $(c, d)$, output $cd^{-1}$.
+\end{protocol}
+
+\begin{conjecture}
+  If the modular inverse assumption (TODO: don't know what this would be) is true, then the modular inverse time-lock puzzle is secure.
+\end{conjecture}
+
+\begin{assumption}[Modular square root assumption]
+  For any $\NC$ algorithm $A$ and for all $k$-bit primes $p$, the probability over randomly chosen $a$ in $\Zp$ that $A(a^2) \cong \pm a \pmod{p}$ is negligible in $k$.
+\end{assumption}
+
+\begin{conjecture}
+  If the modular inverse time-lock puzzle is secure, then the modular square root assumption is true.
+\end{conjecture}
+\begin{proof}
+  %% Assume with the intention of producing a contradiction that the modular square root assumption is false, so there is an $\NC$ algorithm $A$ and a prime $p$ such that $A$ computes $a$ from $a^2$ with non-negligible probability in $k$, the length of $p$.
+  %% Our goal is to construct an $\NC$ algorithm $A'$ that for some $m_1$ and $m_2$ in $\Zp$ distinguishes $(m_1 x, x)$ from $(m_2 y, y)$, where $x$ and $y$ are chosen uniformly at random from $\Zp$, with non-negligible probability in $k$.
+  %% Construct $A'$ as follows.
+\end{proof}
+
+\subsection{Planar integer linear programming}
+
+This puzzle is a bit more complicated to describe.
+The message to encrypt is interpreted as a vector in $\mathbb{Z}^2$.
+The ciphertext is a linear program with the message as its optimum solution.
+
+\begin{definition}[Planar integer linear programming]
+  Given an $n \times 2$ integer matrix $A$, an $n \times 1$ integer vector $b$, and a $2 \times 1$ integer vector $c$, find a $2 \times 1$ integer vector $x$ such that $Ax \leq b$ and $c^\intercal x$ is maximized.
+\end{definition}
+
+\begin{assumption}[Planar integer linear programming assumption]
+  For any $\NC$ algorithm $D$, the probability over randomly chosen $A$, $b$, and $c$ that $D(A, b, c)$ outputs $x$ such that $c^\intercal x$ is maximized is negligible in $k$.
+\end{assumption}
+
+\begin{protocol}[Planar integer linear programming time-lock puzzle]
+  Define time-lock puzzle $(\Enc, \Dec)$ as follows.
+  (TODO: need to specify maximum bit size of randomly generated integers.)
+
+  \emph{Encryption:} On input message $(x_1, x_2) \in \mathbb{Z}^2$,
+  \begin{enumerate}
+  \item \emph{(Random objective function.)}
+    Generate random $(c_1, c_2) \in \left(\mathbb{Z}^+\right)^2$.
+    (TODO: positive objective function makes the algorithm simpler to describe; we need either to prove that this restricted form is just as hard or to modify the rest of the algorithm to compensate for non-positive objective functions.)
+  \item \emph{(Force $(x_1, x_2)$ to be vertex with maximum value.)}
+    Generate random $(a_{11}, a_{12}), (a_{21}, a_{22}) \in \mathbb{Z}^2$ such that $-\frac{a_{11}}{a_{12}} < -\frac{c_1}{c_2}$ and $-\frac{a_{21}}{a_{22}} > -\frac{c_1}{c_2}$.
+    Let $b_1 = a_{11} x_1 + a_{12} x_2$ and $b_2 = a_{21} x_1 + a_{22} x_2$.
+  %%%% I don't think a bounded feasible region is necessary. If it is, add this back in. %%%%
+  %% \item \emph{(Force the feasible region to be bounded by requiring positive solutions.)}
+  %%   Let $a_{31} = -1$, $a_{32} = 0$, and $b_3 = 0$.
+  %%   Let $a_{41} = 0$, $a_{42} = -1$, and $b_4 = 0$.
+  \item \emph{(Create random feasible region.)}
+    For each $i$ in $\{3, \dotsc, n\}$, generate random $(a_{i1}, a_{i2}) \in \mathbb{Z}^2$ and random $b_i \in \mathbb{Z}$ such that $a_{i1} x_1 + a_{i2} x_2 \leq b_i$.
+    (TODO: are redundant constraints acceptable?)
+  \item Output matrix $A$ whose entries are $a_{ij}$, vector $b$ whose entries are $b_i$, and vector $c$ whose entries are $c_j$.
+  \end{enumerate}
+
+  \emph{Decryption:} On input ciphertext $(A, b, c)$, output $x$ such that $Ax \leq b$ and $c^\intercal x$ is maximized.
+\end{protocol}
+
+\begin{conjecture}
+  If the planar integer linear programming assumption is true, then the planar integer linear programming time-lock puzzle is secure.
+\end{conjecture}
+
+We know that there is an $\NC$ algorithm that computes the greatest common divisor of two integers if and only if there is an $\NC$ algorithm that computes an optimal solution to a planar integer linear program.
+(TODO: add citation here.)
+
+\begin{conjecture}
+  The planar integer linear programming assumption is true if and only if the GCD assumption is true.
+\end{conjecture}
+
+\begin{conjecture}
+  The planar integer linear programming time-lock puzzle is secure if and only if the GCD time-lock puzzle is secure.
+\end{conjecture}
+
+%% \printbibliography
+
+\end{document}
