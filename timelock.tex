@@ -178,11 +178,11 @@ In a time-lock puzzle, ``efficient'' decryption (in a certain sense) is neither 
 \begin{conjecture}
   If the modular inverse time-lock puzzle is secure, then the modular square root assumption is true.
 \end{conjecture}
-\begin{proof}
+%% \begin{proof}
   %% Assume with the intention of producing a contradiction that the modular square root assumption is false, so there is an $\NC$ algorithm $A$ and a prime $p$ such that $A$ computes $a$ from $a^2$ with non-negligible probability in $k$, the length of $p$.
   %% Our goal is to construct an $\NC$ algorithm $A'$ that for some $m_1$ and $m_2$ in $\Zp$ distinguishes $(m_1 x, x)$ from $(m_2 y, y)$, where $x$ and $y$ are chosen uniformly at random from $\Zp$, with non-negligible probability in $k$.
   %% Construct $A'$ as follows.
-\end{proof}
+%% \end{proof}
 
 \subsection{Planar integer linear programming}
 
@@ -205,8 +205,7 @@ The ciphertext is a linear program with the message as its optimum solution.
   \emph{Encryption:} On input message $(x_1, x_2) \in \mathbb{Z}^2$,
   \begin{enumerate}
   \item \emph{(Random objective function.)}
-    Generate random $(c_1, c_2) \in \left(\mathbb{Z}^+\right)^2$.
-    (TODO: positive objective function makes the algorithm simpler to describe; we need either to prove that this restricted form is just as hard or to modify the rest of the algorithm to compensate for non-positive objective functions.)
+    Generate random $(c_1, c_2) \in \mathbb{Z}^2$.
   \item \emph{(Force $(x_1, x_2)$ to be vertex with maximum value.)}
     Generate random $(a_{11}, a_{12}), (a_{21}, a_{22}) \in \mathbb{Z}^2$ such that $-\frac{a_{11}}{a_{12}} < -\frac{c_1}{c_2}$ and $-\frac{a_{21}}{a_{22}} > -\frac{c_1}{c_2}$.
     Let $b_1 = a_{11} x_1 + a_{12} x_2$ and $b_2 = a_{21} x_1 + a_{22} x_2$.
