@@ -1,4 +1,4 @@
-%% timelock.tex - Algebraic time-lock puzzles
+%% timelock.tex - Time-lock puzzles
 %%
 %% Copyright 2014 Jeffrey Finkelstein.
 %%
@@ -22,7 +22,7 @@
 \usepackage{amssymb}
 \usepackage{complexity}
 
-\hypersetup{pdftitle={Algebraic time-lock puzzles}, pdfauthor={Jeffrey Finkelstein}}
+\hypersetup{pdftitle={Time-lock puzzles}, pdfauthor={Jeffrey Finkelstein}}
 
 %\addbibresource{references.bib}
 
@@ -37,8 +37,10 @@
 \newcommand{\Enc}{\operatorname{Enc}}
 \newcommand{\Dec}{\operatorname{Dec}}
 \newcommand{\Zp}{\mathbb{Z}^*_p}
+\newcommand{\Piy}{\Pi_{yes}}
+\newcommand{\Pin}{\Pi_{no}}
 
-\title{Algebraic time-lock puzzles}
+\title{Time-lock puzzles}
 \author{Jeffrey Finkelstein}
 
 \begin{document}
@@ -65,6 +67,7 @@
 
 A time-lock puzzle is merely an encryption scheme that has no secret key.
 The secret key in an encryption scheme is intended to allow efficient decryption only for the holder of the key.
+If the sender wishes the receiver to be the only receiver of the message, he or she should use a secure encryption scheme on top of the time-lock puzzle.
 In a time-lock puzzle, ``efficient'' decryption (in a certain sense) is neither desired nor necessary; any decryption should be ``inefficient'' (that is, should require a large amount of resources).
 
 \begin{definition}
@@ -127,10 +130,20 @@ In a time-lock puzzle, ``efficient'' decryption (in a certain sense) is neither 
 
 \subsection{Modular inverse}
 
-%% \begin{assumption}[Computational modular inverse assumption]
-%%   TODO: should p be random in this assumption?
-%%   For any $\NC$ algorithm $A$ and for all $k$-bit primes $p$, the probability over randomly chosen $a$ and $b$ in $\Zp$ that $A(ab, b) \equiv a \pmod{p}$ is negligible in $k$.
-%% \end{assumption}
+\begin{assumption}[Modular inverse assumption]
+  For any $\NC$ algorithm $A$ and for all $k$-bit primes $p$, the probability over randomly chosen $a$ in $\Zp$ that $A(a) \equiv a^{-1} \pmod{p}$ is negligible in $k$.
+\end{assumption}
+
+\begin{assumption}[Modular exponentiation assumption]
+  For any $\NC$ algorithm $A$ and for all $k$-bit primes $p$, the probability over randomly chosen $a$ and $b$ in $\Zp$ that $A(a, b) \equiv a^b \pmod{p}$ is negligible in $k$.
+\end{assumption}
+
+\begin{proposition}
+  If the modular inverse assumption is true, the modular exponentiation assumption is true.
+\end{proposition}
+\begin{proof}
+  If there is an algorithm that computes $a^b$ from $a$, then there is an algorithm that computes $a^{p - 1}$, which is congruent to $a^{-1}$ in $\Zp$, by Fermat's Little Theorem.
+\end{proof}
 
 %% \begin{assumption}[Decisional modular inverse assumption]
 %%   TODO: this is an informal definitions of indistinguishability.
@@ -168,39 +181,40 @@ In a time-lock puzzle, ``efficient'' decryption (in a certain sense) is neither 
 \end{protocol}
 
 \begin{conjecture}
-  If the modular inverse assumption (TODO: don't know what this would be) is true, then the modular inverse time-lock puzzle is secure.
+  If the modular inverse assumption is true, then the modular inverse time-lock puzzle is secure.
 \end{conjecture}
 
-\begin{assumption}[Modular square root assumption]
-  For any $\NC$ algorithm $A$ and for all $k$-bit primes $p$, the probability over randomly chosen $a$ in $\Zp$ that $A(a^2) \equiv \pm a \pmod{p}$ is negligible in $k$.
-\end{assumption}
+%% \begin{assumption}[Modular square root assumption]
+%%   For any $\NC$ algorithm $A$ and for all $k$-bit primes $p$, the probability over randomly chosen $a$ in $\Zp$ that $A(a^2) \equiv \pm a \pmod{p}$ is negligible in $k$.
+%% \end{assumption}
 
-\begin{conjecture}
-  If the modular inverse time-lock puzzle is secure, then the modular square root assumption is true.
-\end{conjecture}
+%% \begin{conjecture}
+%%   If the modular inverse time-lock puzzle is secure, then the modular square root assumption is true.
+%% \end{conjecture}
 %% \begin{proof}
   %% Assume with the intention of producing a contradiction that the modular square root assumption is false, so there is an $\NC$ algorithm $A$ and a prime $p$ such that $A$ computes $a$ from $a^2$ with non-negligible probability in $k$, the length of $p$.
   %% Our goal is to construct an $\NC$ algorithm $A'$ that for some $m_1$ and $m_2$ in $\Zp$ distinguishes $(m_1 x, x)$ from $(m_2 y, y)$, where $x$ and $y$ are chosen uniformly at random from $\Zp$, with non-negligible probability in $k$.
   %% Construct $A'$ as follows.
 %% \end{proof}
 
-\subsection{Planar integer linear programming}
+\subsection{Planar integer programming}
 
 This puzzle is a bit more complicated to describe.
 The message to encrypt is interpreted as a vector in $\mathbb{Z}^2$.
-The ciphertext is a linear program with the message as its optimum solution.
+The ciphertext is an integer linear program with the message as its optimum solution.
 
-\begin{definition}[Planar integer linear programming]
+\begin{definition}[Planar integer programming]
   Given an $n \times 2$ integer matrix $A$, an $n \times 1$ integer vector $b$, and a $2 \times 1$ integer vector $c$, find a $2 \times 1$ integer vector $x$ such that $Ax \leq b$ and $c^\intercal x$ is maximized.
 \end{definition}
 
-\begin{assumption}[Planar integer linear programming assumption]
+\begin{assumption}[Planar integer programming assumption]
   For any $\NC$ algorithm $D$, the probability over randomly chosen $A$, $b$, and $c$ that $D(A, b, c)$ outputs $x$ such that $c^\intercal x$ is maximized is negligible in $k$.
 \end{assumption}
 
-\begin{protocol}[Planar integer linear programming time-lock puzzle]
+\begin{protocol}[Planar integer programming time-lock puzzle]
   Define time-lock puzzle $(\Enc, \Dec)$ as follows.
   (TODO: need to specify maximum bit size of randomly generated integers.)
+  (TODO: another way to encrypt would be to generate the vertices randomly instead of generating the lines randomly.)
 
   \emph{Encryption:} On input message $(x_1, x_2) \in \mathbb{Z}^2$,
   \begin{enumerate}
@@ -223,19 +237,80 @@ The ciphertext is a linear program with the message as its optimum solution.
 \end{protocol}
 
 \begin{conjecture}
-  If the planar integer linear programming assumption is true, then the planar integer linear programming time-lock puzzle is secure.
+  If the planar integer programming assumption is true, then the planar integer programming time-lock puzzle is secure.
 \end{conjecture}
 
-We know that there is an $\NC$ algorithm that computes the greatest common divisor of two integers if and only if there is an $\NC$ algorithm that computes an optimal solution to a planar integer linear program.
+We know that there is an $\NC$ algorithm that computes the greatest common divisor of two integers if and only if there is an $\NC$ algorithm that computes an optimal solution to a planar integer program.
 (TODO: add citation here.)
 
 \begin{conjecture}
-  The planar integer linear programming assumption is true if and only if the GCD assumption is true.
+  The planar integer programming assumption is true if and only if the GCD assumption is true.
 \end{conjecture}
 
 \begin{conjecture}
-  The planar integer linear programming time-lock puzzle is secure if and only if the GCD time-lock puzzle is secure.
+  The planar integer programming time-lock puzzle is secure if and only if the GCD time-lock puzzle is secure.
 \end{conjecture}
+
+\section{Circuit time-lock puzzles}
+
+Encryption schemes that are secure against (nonuniform) polynomial time adversaries are usually based on computational problems that are not \NP-complete (for example, discrete logarithm, factoring, and the RSA problem).
+
+\begin{definition}
+  (TODO: should I really be making up definitions? This doesn't make sense, because we can always verify by just encrypting...)
+
+  %% A time-lock puzzle $(\Enc, \Dec)$ is \emph{worst-case secure} if for all functions $\Dec^*$, the promise problem $(\Piy, \Pin)$ defined by
+  %% \begin{align*}
+  %%   \Piy & = \{ (c, m) \, | \, \Enc(m) = c \text{ and } \Dec(c) = m \} \\
+  %%   \Pin & = \{ (c, m) \, | \, \Enc(m) = c \text{ and } \Dec^*(c) \neq m \}
+  %% \end{align*}
+  %% is \prP-complete.
+
+  A time-lock puzzle $(\Enc, \Dec)$ is \emph{worst-case secure} if the language
+  $$
+  \{ (c, m) \, | \, \Dec(c) = m \}
+  $$
+  is \prP-complete.
+\end{definition}
+The promise is that $c$ is the correct encryption of $m$.
+This promise allows us to ignore the complexity of instances $(c, m)$ for which $c$ is not the encryption of $m$.
+
+\subsection{Circuit evaluation}
+
+\begin{protocol}[Single-bit circuit evaluation time-lock puzzle]
+  Let $k$ be the security parameter.
+  Define time-lock puzzle $(\Enc, \Dec)$ as follows.
+
+  \emph{Encryption:} On input message $m \in \{0, 1\}$, generate random circuit $C$ and input for that circuit $\alpha$ such that $C(\alpha) = m$ as follows.
+  (TODO: how can we do this? \url{http://arxiv.org/pdf/1102.3310v2.pdf} has a way to generate random $C$ and $\alpha$ that are likely hard to evaluate in parallel, but the output is random...)
+
+  \emph{Decryption:} On input ciphertext $(C, \alpha)$, compute $C(\alpha)$ by evaluating the circuit gate-by-gate.
+\end{protocol}
+
+\subsection{Permutation inversion}
+
+\begin{protocol}[Permutation time-lock puzzle]
+  Let $k$ be the security parameter.
+  Define time-lock puzzle $(\Enc, \Dec)$ as follows.
+
+  \emph{Encryption:} On input message $m \in \{0, 1\}^k$, generate random $\NC^0$ permutation $f$ (TODO: how?) and output ciphertext $(f, f(m))$.
+
+  \emph{Decryption:} On input ciphertext $(f, c)$, output $f^{-1}(c)$ (TODO: ensure that this is polynomial time computable).
+\end{protocol}
+
+\section{Time-lock puzzles for limited nondeterminism}
+
+\subsection{Limited depth, limited nondetermnism circuit satisfiability}
+
+\begin{protocol}[$\beta_k \NC^d$ circuit satisfiability time-lock puzzle]
+  Let $n$ be the security parameter.
+  Let $k$ and $d$ be nonnegative integers.
+  Define time-lock puzzle $(\Enc, \Dec)$ as follows.
+  (TODO: there are several ways to perform this encryption.)
+
+  \emph{Encryption:} On input message $b \in \{0, 1\}$, generate a random circuit $C$ with $n$ gates, $m$ inputs, and $O(\log^d m)$ depth and a random partial input string $\alpha$ of size $m - \log^k n$ such that there is some $\beta$ satisfying $C(\alpha, \beta) = b$.
+
+  \emph{Decryption:} 
+\end{protocol}
 
 %% \printbibliography
 

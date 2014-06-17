@@ -1,4 +1,4 @@
-# Algebraic time-lock puzzles #
+# Time-lock puzzles #
 
 This file was last updated on June 13, 2014.
 
