@@ -1,31 +1,92 @@
 %% timelock.tex - Time-lock puzzles
 %%
-%% Copyright 2014 Jeffrey Finkelstein.
+%% Copyright 2014, 2015 Jeffrey Finkelstein.
 %%
 %% This LaTeX markup document is made available under the terms of the Creative
 %% Commons Attribution-ShareAlike 4.0 International License,
 %% https://creativecommons.org/licenses/by-sa/4.0/.
 \documentclass{article}
 
+\usepackage{amsmath}
+\usepackage{amssymb}
 %% This must come before hyperref.
 \usepackage{amsthm}
+%% This is strongly recommended by biblatex.
+\usepackage[english]{babel}
+\usepackage[backend=biber]{biblatex}
+\usepackage[T1]{fontenc}
+%% This must come before csquotes.
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+%% This is strongly recommended by biblatex.
+\usepackage{csquotes}
 %% This must come before hyperref.
 \usepackage{thmtools}
 %% This must come before complexity.
 \usepackage{hyperref}
-%% This is strongly recommended by biblatex.
-\usepackage[english]{babel}
-%% This is strongly recommended by biblatex.
-\usepackage{csquotes}
-\usepackage[backend=biber]{biblatex}
-\usepackage{amsmath}
-\usepackage{amssymb}
 \usepackage{complexity}
+\usepackage[firstpage]{draftwatermark}
+\usepackage{microtype}
+\usepackage{textcomp}
+
+%% Set the amount by which certain characters protrude into the margins.
+%%
+%% \LoadMicrotypeFile{cmr}
+%%
+%%     This command forces the built-in protrusion settings for the Computer
+%%     Modern Roman (cmr) font family to become available at this point, so
+%%     that we can override these settings on the next line. Even though we are
+%%     really using the Latin Modern Roman (lmr) fonts, microtype uses the cmr
+%%     configuration file.
+%%
+%% \SetProtrusion
+%%
+%%     This instructs the microtype package that we are going to modify the
+%%     protrusion settings.
+%%
+%% [load=lmr-T1]
+%%
+%%     Loads the Type 1 (T1) encoding of the lmr font family, thereby setting
+%%     the default protrusion values for all the characters. This is only
+%%     possible after the \LoadMicrotypeFile{cmr} command (microtype
+%%     essentially considers lmr to be an alias for cmr).
+%%
+%% {encoding=T1, family=lmr}
+%%
+%%     Indicates that we are going to modify the protrusion values for the T1
+%%     encoding of the lmr font family.
+%%
+%% \textquotedblright = {,1000} (and similar commands)
+%%
+%%     Force the character given by \textquotedblright to have default
+%%     protrusion on the left margin (given by an empty string before the
+%%     comma) and full protrusion (that is, protrusion value 1000) on the right
+%%     margin.
+\LoadMicrotypeFile{cmr}
+\SetProtrusion
+    [load=lmr-T1]
+    {encoding=T1, family=lmr}
+    {
+      \textquotedblright = {,1000},
+      \textquotedblleft = {1000,},
+      {'} = {,1000},
+      {,} = {,1000},
+      {:} = {,1000},
+      {;} = {,1000},
+      {.} = {,1000}
+    }
+
+%% Set the ``work-in-progress'' watermark for the first page.
+\SetWatermarkLightness{0.9}
+\SetWatermarkText{Work-in-progress}
+\SetWatermarkFontSize{3.5cm}
 
 \hypersetup{pdftitle={Time-lock puzzles}, pdfauthor={Jeffrey Finkelstein}}
 
-%\addbibresource{references.bib}
+%% Declare the bibliography file.
+%\addbibresource{timelock.bib}
 
+%% Declare theorem-like environments.
 \declaretheorem[numberwithin=section]{theorem}
 \declaretheorem[numberlike=theorem]{proposition}
 \declaretheorem[numberlike=theorem]{conjecture}
@@ -33,6 +94,9 @@
 \declaretheorem[numberlike=theorem, style=definition]{definition}
 \declaretheorem[numberlike=theorem, style=definition]{protocol}
 
+%% Custom commands are declared here.
+\newcommand{\email}[1]{\textlangle\href{mailto:#1}{\nolinkurl{#1}}\textrangle}
+\newcommand{\todo}[1]{\textbf{TODO #1}}
 %% \newcommand{\getr}{\overset{R}{\gets}}
 \newcommand{\Enc}{\operatorname{Enc}}
 \newcommand{\Dec}{\operatorname{Dec}}
@@ -40,12 +104,25 @@
 \newcommand{\Piy}{\Pi_{yes}}
 \newcommand{\Pin}{\Pi_{no}}
 
+%% Redefine the footnote environment so it has no reference and no number.
+\long\def\symbolfootnote#1{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnotetext{#1}\endgroup}
+
+%% Define the author, title, and date for the document.
+\author{Jeffrey~Finkelstein\\ Computer Science Department, Boston University}
 \title{Time-lock puzzles}
-\author{Jeffrey Finkelstein}
 
 \begin{document}
 
 \maketitle
+
+\symbolfootnote{%
+  Copyright 2014, 2015 Jeffrey~Finkelstein \email{jeffreyf@bu.edu}.
+
+  This document is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License, which is available at \mbox{\url{https://creativecommons.org/licenses/by-sa/4.0/}}.
+  The \LaTeX{} markup that generated this document can be downloaded from its website at \mbox{\url{https://github.com/jfinkels/timelock}}.
+  The markup is distributed under the same license.
+}
 
 %% An \emph{$\NP$ relation} is a set of the form $\{ (x, w) \, | \, (x, w) \in L \}$, where $L \in \P$.
 %% An \emph{$\NP$ search function} for an $\NP$ relation $R$ is a function $f$ such that for all $x$, $f(x) = w$ where $(x, w) \in R$ (or if no $w$ exists for a given $x$, then $f(x) = \bot$).
@@ -76,7 +153,7 @@ In a time-lock puzzle, ``efficient'' decryption (in a certain sense) is neither 
 \end{definition}
 
 \begin{definition}
-  TODO: this is an informal definition of indistinguishability.
+  \todo{this is an informal definition of indistinguishability.}
   Use the formal definitions from Goldreich, Volume II.
 
   A time-lock puzzle $(\Enc, \Dec)$ is \emph{secure} if no $\NC$ adversary can distinguish $\Enc(m_1)$ from $\Enc(m_2)$ for any $m_1$ and $m_2$ in $M$ with non-negligible probability.
@@ -91,7 +168,7 @@ In a time-lock puzzle, ``efficient'' decryption (in a certain sense) is neither 
 \end{assumption}
 
 \begin{assumption}[Decisional GCD assumption]
-  TODO: this is an informal definitions of indistinguishability.
+  \todo{this is an informal definitions of indistinguishability.}
 
   Let $k$ be the security parameter and $K = 2^k$.
   The following two probability distributions are $\NC$ indistinguishable.
@@ -213,8 +290,8 @@ The ciphertext is an integer linear program with the message as its optimum solu
 
 \begin{protocol}[Planar integer programming time-lock puzzle]
   Define time-lock puzzle $(\Enc, \Dec)$ as follows.
-  (TODO: need to specify maximum bit size of randomly generated integers.)
-  (TODO: another way to encrypt would be to generate the vertices randomly instead of generating the lines randomly.)
+  \todo{need to specify maximum bit size of randomly generated integers.}
+  \todo{another way to encrypt would be to generate the vertices randomly instead of generating the lines randomly.}
 
   \emph{Encryption:} On input message $(x_1, x_2) \in \mathbb{Z}^2$,
   \begin{enumerate}
@@ -229,7 +306,7 @@ The ciphertext is an integer linear program with the message as its optimum solu
   %%   Let $a_{41} = 0$, $a_{42} = -1$, and $b_4 = 0$.
   \item \emph{(Create random feasible region.)}
     For each $i$ in $\{3, \dotsc, n\}$, generate random $(a_{i1}, a_{i2}) \in \mathbb{Z}^2$ and random $b_i \in \mathbb{Z}$ such that $a_{i1} x_1 + a_{i2} x_2 \leq b_i$.
-    (TODO: are redundant constraints acceptable?)
+    \todo{are redundant constraints acceptable?}
   \item Output matrix $A$ whose entries are $a_{ij}$, vector $b$ whose entries are $b_i$, and vector $c$ whose entries are $c_j$.
   \end{enumerate}
 
@@ -241,7 +318,7 @@ The ciphertext is an integer linear program with the message as its optimum solu
 \end{conjecture}
 
 We know that there is an $\NC$ algorithm that computes the greatest common divisor of two integers if and only if there is an $\NC$ algorithm that computes an optimal solution to a planar integer program.
-(TODO: add citation here.)
+\todo{add citation here.}
 
 \begin{conjecture}
   The planar integer programming assumption is true if and only if the GCD assumption is true.
@@ -256,7 +333,7 @@ We know that there is an $\NC$ algorithm that computes the greatest common divis
 Encryption schemes that are secure against (nonuniform) polynomial time adversaries are usually based on computational problems that are not \NP-complete (for example, discrete logarithm, factoring, and the RSA problem).
 
 \begin{definition}
-  (TODO: should I really be making up definitions? This doesn't make sense, because we can always verify by just encrypting...)
+  \todo{should I really be making up definitions? This doesn't make sense, because we can always verify by just encrypting...}
 
   %% A time-lock puzzle $(\Enc, \Dec)$ is \emph{worst-case secure} if for all functions $\Dec^*$, the promise problem $(\Piy, \Pin)$ defined by
   %% \begin{align*}
@@ -281,7 +358,7 @@ This promise allows us to ignore the complexity of instances $(c, m)$ for which 
   Define time-lock puzzle $(\Enc, \Dec)$ as follows.
 
   \emph{Encryption:} On input message $m \in \{0, 1\}$, generate random circuit $C$ and input for that circuit $\alpha$ such that $C(\alpha) = m$ as follows.
-  (TODO: how can we do this? \url{http://arxiv.org/pdf/1102.3310v2.pdf} has a way to generate random $C$ and $\alpha$ that are likely hard to evaluate in parallel, but the output is random...)
+  \todo{how can we do this? \url{http://arxiv.org/pdf/1102.3310v2.pdf} has a way to generate random $C$ and $\alpha$ that are likely hard to evaluate in parallel, but the output is random...}
 
   \emph{Decryption:} On input ciphertext $(C, \alpha)$, compute $C(\alpha)$ by evaluating the circuit gate-by-gate.
 \end{protocol}
@@ -292,9 +369,9 @@ This promise allows us to ignore the complexity of instances $(c, m)$ for which 
   Let $k$ be the security parameter.
   Define time-lock puzzle $(\Enc, \Dec)$ as follows.
 
-  \emph{Encryption:} On input message $m \in \{0, 1\}^k$, generate random $\NC^0$ permutation $f$ (TODO: how?) and output ciphertext $(f, f(m))$.
+  \emph{Encryption:} On input message $m \in \{0, 1\}^k$, generate random $\NC^0$ permutation $f$ \todo{how?} and output ciphertext $(f, f(m))$.
 
-  \emph{Decryption:} On input ciphertext $(f, c)$, output $f^{-1}(c)$ (TODO: ensure that this is polynomial time computable).
+  \emph{Decryption:} On input ciphertext $(f, c)$, output $f^{-1}(c)$ \todo{ensure that this is polynomial time computable}.
 \end{protocol}
 
 \section{Time-lock puzzles for limited nondeterminism}
@@ -305,7 +382,7 @@ This promise allows us to ignore the complexity of instances $(c, m)$ for which 
   Let $n$ be the security parameter.
   Let $k$ and $d$ be nonnegative integers.
   Define time-lock puzzle $(\Enc, \Dec)$ as follows.
-  (TODO: there are several ways to perform this encryption.)
+  \todo{there are several ways to perform this encryption.}
 
   \emph{Encryption:} On input message $b \in \{0, 1\}$, generate a random circuit $C$ with $n$ gates, $m$ inputs, and $O(\log^d m)$ depth and a random partial input string $\alpha$ of size $m - \log^k n$ such that there is some $\beta$ satisfying $C(\alpha, \beta) = b$.
 
